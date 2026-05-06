@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>我的前端简历</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部 -->
+    <header class="header">
+      <button id="theme-toggle">🌙 暗黑模式</button>
+      <h1>你的名字</h1>
+      <p>前端工程师 | Vue / React / TypeScript / Serverless</p>
+    </header>
+
+    <!-- 个人简介 -->
+    <section class="info card">
+      <h2>个人简介</h2>
+      <p>2 年前端开发经验，热爱前端与用户体验，熟练掌握现代前端技术栈，注重工程化与性能优化。</p>
+    </section>
+
+    <!-- 技能栈 -->
+    <section class="skills card">
+      <h2>技能栈</h2>
+      <div class="tags">
+        <span>HTML/CSS</span>
+        <span>JavaScript</span>
+        <span>TypeScript</span>
+        <span>Vue3</span>
+        <span>React</span>
+        <span>Vite</span>
+        <span>Git</span>
+        <span>Serverless</span>
+        <span>Node.js</span>
+        <span>Webpack</span>
+      </div>
+    </section>
+
+    <!-- 工作经历 -->
+    <section class="work card">
+      <h2>工作经历</h2>
+      <div class="work-item">
+        <h3>XX 科技有限公司 | 前端工程师</h3>
+        <p>2023.03 - 至今</p>
+        <ul>
+          <li>负责企业中台系统前端开发与维护</li>
+          <li>使用 Vue3 + Vite 构建项目，优化打包体积提升加载速度</li>
+          <li>负责权限系统、组件封装、性能优化</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GitHub 项目 -->
+    <section class="projects card">
+      <h2>GitHub 项目</h2>
+      <div id="repo-list" class="repo-list"></div>
+    </section>
+
+    <!-- 联系方式 -->
+    <section class="contact card">
+      <h2>联系方式</h2>
+      <p>📱 电话：138xxxx8888</p>
+      <p>📧 邮箱：your@email.com</p>
+      <p>🐙 GitHub：https://github.com/你的用户名</p>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
