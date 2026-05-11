@@ -268,22 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import {
-  Layout,
-  Card,
-  Descriptions,
-  Row,
-  Col,
-  Timeline,
-  Collapse,
-  Typography,
-  Anchor,
-} from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
-
-const { Header, Content, Footer } = Layout;
-const { Title, Paragraph, Text } = Typography;
 </script>
 
 <style scoped>
