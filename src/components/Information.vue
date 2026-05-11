@@ -1,5 +1,8 @@
 <template>
   <div class="resume-container" ref="containerRef" :class="themeClass">
+    <!-- 光粒子画布（全屏背景） -->
+    <canvas class="particle-canvas" ref="particleCanvas"></canvas>
+
     <!-- 主题切换按钮（阿里图标 太阳/月亮） -->
     <div class="theme-switch">
       <a-button type="primary" shape="circle" size="large" @click="toggleTheme">
@@ -18,9 +21,9 @@
           <a-space size="large">
             <a-tag color="blue">{{ basic.phone }}</a-tag>
             <a-tag color="cyan">{{ basic.email }}</a-tag>
-            <a-tag color="purple"
-              >{{ basic.age }}岁 | {{ basic.education }}</a-tag
-            >
+            <a-tag color="purple">
+              {{ basic.age }}岁 | {{ basic.education }}
+            </a-tag>
           </a-space>
         </div>
         <div class="link-group">
@@ -29,15 +32,17 @@
             type="primary"
             ghost
             @click="openLink(basic.github)"
-            >GitHub</a-button
           >
+            GitHub
+          </a-button>
           <a-button
             class="gitee-btn"
             type="default"
             ghost
             @click="openLink(basic.gitee)"
-            >Gitee</a-button
           >
+            Gitee
+          </a-button>
         </div>
       </div>
     </div>
@@ -128,9 +133,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const containerRef = ref<HTMLElement | null>(null);
+const particleCanvas = ref<HTMLCanvasElement | null>(null);
 const activeProjects = ref<string[]>(['0']);
 
 // 主题：根据时间自动设置默认
@@ -152,7 +158,72 @@ const openLink = (url: string) => {
   window.open(url, '_blank');
 };
 
-// ====================== 以下完全按 PDF 简历一字不差填写 ======================
+// ====================== 光粒子动效 ======================
+let animationId: number;
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  color: string;
+}
+
+const initParticles = () => {
+  const canvas = particleCanvas.value;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const setCanvasSize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  setCanvasSize();
+  window.addEventListener('resize', setCanvasSize);
+
+  const particles: Particle[] = [];
+  const particleCount = Math.floor(window.innerWidth / 10);
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.5 + 0.5,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.3,
+      color: isDark.value 
+        ? 'rgba(255, 255, 255, 0.9)' 
+        : 'rgba(54, 136, 244, 0.5)',
+    });
+
+  }
+console.log('isDark.value',isDark.value)
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+
+      p.x += p.speedX;
+      p.y += p.speedY;
+
+      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+    });
+    animationId = requestAnimationFrame(draw);
+  };
+  draw();
+
+  return () => {
+    window.removeEventListener('resize', setCanvasSize);
+    cancelAnimationFrame(animationId);
+  };
+};
+
+// ====================== 简历内容 ======================
 const basic = ref({
   name: '安声桂',
   age: 30,
@@ -164,7 +235,9 @@ const basic = ref({
   gitee: 'https://gitee.com/anshenggui114',
 });
 
-const profile = ref(`5年+互联网Web/H5前端开发经验,主栈React+TypeScript,兼顾Vue全栈开发,深耕企业SaaS、金融H5、数据可视化、3D可视化、AI智能应用开发领域。具备完整的需求评审、技术方案设计、架构搭建、功能开发、性能优化、线上部署运维全链路能力。长期负责ToB后台系统、金融级H5应用、企业邮件系统、文博管理平台研发,擅长前端工程化落地、自定义组件封装、权限架构设计、复杂场景性能优化;同时拓展AI前端能力,熟练使用LangChain、LangGraph开发Agent智能应用、对接LLM大模型API。具备极强的跨部门协作、问题攻坚、需求落地能力,能够独立完成项目0-1架构搭建与迭代,适配中高级前端研发、AI前端开发岗位需求。`);
+const profile = ref(
+  `5年+互联网Web/H5前端开发经验,主栈React+TypeScript,兼顾Vue全栈开发,深耕企业SaaS、金融H5、数据可视化、3D可视化、AI智能应用开发领域。具备完整的需求评审、技术方案设计、架构搭建、功能开发、性能优化、线上部署运维全链路能力。长期负责ToB后台系统、金融级H5应用、企业邮件系统、文博管理平台研发,擅长前端工程化落地、自定义组件封装、权限架构设计、复杂场景性能优化;同时拓展AI前端能力,熟练使用LangChain、LangGraph开发Agent智能应用、对接LLM大模型API。具备极强的跨部门协作、问题攻坚、需求落地能力,能够独立完成项目0-1架构搭建与迭代,适配中高级前端研发、AI前端开发岗位需求。`
+);
 
 const skills = ref([
   {
@@ -280,7 +353,8 @@ const projects = ref([
   },
   {
     name: '图片识别生成菜谱AI Agent应用(个人项目)',
-    stack: 'Next.js + React + TypeScript + LangChain + LangGraph + FastAPI + SQLite + Tavily Search',
+    stack:
+      'Next.js + React + TypeScript + LangChain + LangGraph + FastAPI + SQLite + Tavily Search',
     desc: '独立开发AI驱动的菜谱推荐开源应用,聚焦解决用户“有食材不知做什么”的核心痛点,支持图片上传智能识别食材、基于食材智能搜索推荐适配菜谱,打通从图片识别到可操作食谱的完整链路,提升用户烹饪决策效率。',
     result: [
       '基于Next.js搭建前端工程架构,实现响应式界面与图片拖拽上传、实时预览功能,组件复用率达65%',
@@ -294,9 +368,12 @@ const projects = ref([
 ]);
 
 onMounted(() => {
-  if (containerRef.value) {
-    containerRef.value.style.opacity = '1';
-  }
+  if (containerRef.value) containerRef.value.style.opacity = '1';
+  initParticles();
+});
+
+onUnmounted(() => {
+  cancelAnimationFrame(animationId);
 });
 </script>
 
@@ -323,11 +400,25 @@ $color-blue: #4fc3f7;
 $color-cyan: #81d4fa;
 $shadow-blue: rgba(0, 110, 255, 0.15);
 
+// 粒子背景
+.particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .resume-container {
   min-height: 100vh;
   padding-bottom: 60px;
   opacity: 0;
   transition: opacity 0.8s ease;
+  position: relative;
+  z-index: 2;
+
   &.theme-dark {
     background: $dark-bg;
     color: $dark-text;
@@ -356,12 +447,15 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   text-align: center;
   overflow: hidden;
   transition: background 0.3s;
+  z-index: 3;
+
   .theme-dark & {
     background: $dark-header;
   }
   .theme-light & {
     background: $light-header;
   }
+
   .header-glow {
     position: absolute;
     top: -200px;
@@ -376,10 +470,12 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
     );
     z-index: 0;
   }
+
   .header-content {
     position: relative;
     z-index: 1;
   }
+
   .name {
     font-size: 42px;
     font-weight: 800;
@@ -387,6 +483,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
     background: linear-gradient(90deg, $color-blue, $color-cyan);
     -webkit-background-clip: text;
     background-clip: text;
+
     .theme-dark & {
       color: $dark-light;
     }
@@ -394,9 +491,11 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
       color: $light-light;
     }
   }
+
   .job {
     font-size: 18px;
     margin: 8px 0 20px;
+
     .theme-dark & {
       color: #aab7ef;
     }
@@ -405,11 +504,13 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
       font-weight: 500;
     }
   }
+
   .contact-bar {
     display: flex;
     justify-content: center;
     margin-bottom: 24px;
   }
+
   .link-group {
     display: flex;
     gap: 12px;
@@ -436,7 +537,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   margin: -50px auto 0;
   padding: 0 20px;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .card-section {
@@ -444,37 +545,50 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.3s;
+  position: relative;
+  z-index: 3;
+
   .theme-dark & {
     background: $dark-card;
     backdrop-filter: blur(10px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3),
-                0 2px 10px rgba(79, 195, 247, 0.1);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.3),
+      0 2px 10px rgba(79, 195, 247, 0.1);
   }
   .theme-light & {
     background: $light-card;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
-                0 2px 6px rgba(0, 110, 255, 0.05);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      0 2px 6px rgba(0, 110, 255, 0.05);
   }
+
   &:hover {
     transform: translateY(-4px);
+
     .theme-dark & {
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4),
-                  0 0 18px rgba(79, 195, 247, 0.18);
+      box-shadow:
+        0 14px 36px rgba(0, 0, 0, 0.4),
+        0 0 18px rgba(79, 195, 247, 0.18);
     }
     .theme-light & {
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12),
-                  0 4px 12px rgba(0, 110, 255, 0.08);
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.12),
+        0 4px 12px rgba(0, 110, 255, 0.08);
     }
   }
+
   :deep(.ant-card-head) {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
     .theme-light & {
       border-color: #f0f0f0;
     }
   }
+
   :deep(.ant-card-head-title) {
     font-size: 20px;
     font-weight: 600;
+
     .theme-dark & {
       color: $dark-light;
     }
@@ -482,6 +596,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
       color: $light-light;
     }
   }
+
   :deep(.ant-card-body) {
     .theme-dark & {
       color: $dark-sub;
@@ -504,21 +619,25 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   padding: 16px;
   border-radius: 12px;
   height: 100%;
+
   .theme-dark & {
     background: $dark-skill;
   }
   .theme-light & {
     background: $light-skill;
   }
+
   .skill-title {
     font-size: 16px;
     font-weight: 600;
     color: $color-blue;
     margin-bottom: 8px;
   }
+
   .skill-content {
     font-size: 14px;
     line-height: 1.6;
+
     .theme-dark & {
       color: #b3bbdf;
     }
@@ -539,9 +658,11 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   gap: 10px;
   align-items: center;
   margin-bottom: 8px;
+
   .company {
     font-size: 16px;
     font-weight: 600;
+
     .theme-dark & {
       color: $dark-light;
     }
@@ -556,6 +677,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   .date {
     font-size: 13px;
     margin-left: auto;
+
     .theme-dark & {
       color: #94a0d0;
     }
@@ -567,6 +689,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
 .timeline-desc {
   font-size: 14px;
   line-height: 1.7;
+
   .theme-dark & {
     color: $dark-light;
   }
@@ -588,6 +711,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
 }
 :deep(.ant-collapse-header) {
   font-weight: 500;
+
   .theme-dark & {
     color: $dark-light !important;
   }
@@ -602,6 +726,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
 .project-desc {
   margin: 10px 0;
   line-height: 1.7;
+
   .theme-dark & {
     color: $dark-light;
   }
@@ -611,6 +736,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
 }
 .project-result {
   margin-top: 12px;
+
   .result-title {
     font-weight: 600;
     color: $color-blue;
@@ -619,6 +745,7 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   ul {
     padding-left: 20px;
     line-height: 1.7;
+
     .theme-dark & {
       color: $dark-light;
     }
@@ -632,6 +759,9 @@ $shadow-blue: rgba(0, 110, 255, 0.15);
   text-align: center;
   padding: 30px 20px;
   font-size: 14px;
+  position: relative;
+  z-index: 3;
+
   .theme-dark & {
     color: #7784b6;
   }
