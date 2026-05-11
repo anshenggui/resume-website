@@ -226,7 +226,7 @@ console.log('isDark.value',isDark.value)
 // ====================== 简历内容 ======================
 const basic = ref({
   name: '安声桂',
-  age: 30,
+  age: new Date().getFullYear() - 1996 - (new Date().getMonth() < 6 && new Date().getDate() < 2 ? 1 : 0),
   phone: '13411066453',
   email: '13411066453@139.com',
   education: '本科 | 中山大学新华学院(现广州新华学院) | 软件工程',
