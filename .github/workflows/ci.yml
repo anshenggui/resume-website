@@ -1,32 +1,22 @@
-name: Build and Deploy
-
+name: CI
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 👇 解决 Node.js 20 弃用警告（关键）
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'npm' # 缓存依赖，加快构建速度
 
       - name: Install dependencies
-        run: npm install
-
-      - name: Lint fix (自动清理无用变量)
-        run: npm run lint -- --fix
+        run: npm ci
 
       - name: Build project
         run: npm run build
